@@ -1,0 +1,11 @@
+__pycache__/
+*.pyc
+.pytest_cache/
+.chdb/
+data/
+dbt/target/
+dbt/logs/
+dbt/.user.yml
+logs/
+.env
+.venv/

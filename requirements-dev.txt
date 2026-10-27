@@ -1,0 +1,5 @@
+-r requirements.txt
+chdb>=3.0          # ClickHouse embarqué : développement et tests sans Docker
+pytest>=8.0
+anyio>=4.0
+playwright>=1.45   # optionnel : capture du rapport

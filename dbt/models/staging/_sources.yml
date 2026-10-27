@@ -1,0 +1,15 @@
+version: 2
+
+sources:
+  - name: velib
+    schema: raw
+    description: Relevés bruts du flux GBFS Vélib' Métropole, ingérés via Kafka/Redpanda.
+    tables:
+      - name: station_status
+        description: Un relevé par station et par interrogation du flux (toutes les 60 s en production).
+        loaded_at_field: polled_at
+        freshness:
+          warn_after: {count: 15, period: minute}
+          error_after: {count: 60, period: minute}
+      - name: station_information
+        description: Référentiel des stations (nom, position, capacité).

@@ -1,0 +1,70 @@
+version: 2
+
+models:
+  - name: stg_velib__station_status
+    description: Relevés dédoublonnés, une ligne par station et par interrogation.
+    columns:
+      - name: station_id
+        data_tests: [not_null]
+      - name: polled_at
+        data_tests: [not_null]
+      - name: report_lag_minutes
+        description: Minutes écoulées entre la dernière remontée de la station et l'interrogation.
+
+  - name: stg_velib__station_information
+    columns:
+      - name: station_id
+        data_tests: [unique, not_null]
+
+  - name: int_station_status_15min
+    description: Agrégat station × quart d'heure (incrémental).
+    data_tests:
+      - dbt_utils_free_unique_combination:
+          arguments:
+            columns: [station_id, bucket]
+
+  - name: dim_station
+    description: Référentiel des stations enrichi du comportement moyen.
+    columns:
+      - name: station_id
+        data_tests: [unique, not_null]
+      - name: capacity
+        data_tests: [not_null]
+      - name: usage_profile
+        data_tests:
+          - accepted_values:
+              arguments:
+                values: ['résidentielle', 'bureaux', 'mixte']
+
+  - name: mart_network_kpis_15min
+    description: Santé du réseau par quart d'heure.
+    columns:
+      - name: bucket
+        data_tests: [unique, not_null]
+
+  - name: mart_station_anomalies
+    description: Anomalies actives par station, avec gravité et score de priorité.
+    columns:
+      - name: station_id
+        data_tests:
+          - not_null
+          - relationships:
+              arguments:
+                to: ref('dim_station')
+                field: station_id
+      - name: anomaly_type
+        data_tests:
+          - accepted_values:
+              arguments:
+                values: ['STALE_DATA', 'OUT_OF_SERVICE', 'DOCKS_UNAVAILABLE', 'CHRONIC_EMPTY', 'CHRONIC_FULL']
+      - name: severity
+        data_tests:
+          - accepted_values:
+              arguments:
+                values: ['critique', 'élevée', 'moyenne']
+
+  - name: mart_rebalancing_needs
+    description: Stations vides ou pleines à rééquilibrer, avec le nombre de vélos à déplacer.
+    columns:
+      - name: station_id
+        data_tests: [unique, not_null]

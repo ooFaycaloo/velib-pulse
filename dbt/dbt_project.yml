@@ -1,0 +1,29 @@
+name: velib_pulse
+version: "1.0.0"
+config-version: 2
+profile: velib_pulse
+
+model-paths: ["models"]
+test-paths: ["tests"]
+macro-paths: ["macros"]
+
+vars:
+  # seuils de détection, ajustables sans toucher au SQL
+  stale_after_minutes: 60
+  out_of_service_after_minutes: 30
+  docks_unavailable_ratio: 0.75
+  docks_unavailable_window_hours: 2
+  chronic_share: 0.6
+  near_threshold: 2          # moins de 2 vélos (ou places) = station quasi vide (ou pleine)
+  chronic_window_hours: 24
+  daytime_start_hour: 7
+  daytime_end_hour: 22
+
+models:
+  velib_pulse:
+    staging:
+      +materialized: view
+    intermediate:
+      +materialized: table
+    marts:
+      +materialized: table

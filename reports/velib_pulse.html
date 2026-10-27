@@ -1,0 +1,307 @@
+<!doctype html><html lang="fr"><head><meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover"><title>Vélib Pulse</title>
+<meta name="claude:viewport-fit-sides" content="cover">
+<style>
+:root{--surface-1:#fcfcfb;--page:#f9f9f7;--ink:#0b0b0b;--ink-2:#52514e;--muted:#898781;--grid:#e1e0d9;
+--axis:#c3c2b7;--border:rgba(11,11,11,.10);--series-1:#2a78d6;--series-2:#eb6834;--status-critical:#d03b3b;
+--status-serious:#ec835a;--status-warning:#fab219;--good:#006300;--bad:#b42525}
+@media (prefers-color-scheme:dark){:root:not([data-theme="light"]){--surface-1:#1a1a19;--page:#0d0d0d;--ink:#f0efec;
+--ink-2:#c3c2b7;--muted:#898781;--grid:#2c2c2a;--axis:#383835;--border:rgba(255,255,255,.10);--series-1:#3987e5;
+--series-2:#d95926;--good:#0ca30c;--bad:#e66767;color-scheme:dark}}
+:root[data-theme="dark"]{--surface-1:#1a1a19;--page:#0d0d0d;--ink:#f0efec;--ink-2:#c3c2b7;--muted:#898781;
+--grid:#2c2c2a;--axis:#383835;--border:rgba(255,255,255,.10);--series-1:#3987e5;--series-2:#d95926;--good:#0ca30c;--bad:#e66767;color-scheme:dark}
+*{box-sizing:border-box}
+body{margin:0;background:var(--page);color:var(--ink);font:15px/1.5 system-ui,-apple-system,"Segoe UI",sans-serif}
+main{max-width:1100px;margin:0 auto;padding-block:24px 48px;padding-left:max(16px,env(safe-area-inset-left,0px));padding-right:max(16px,env(safe-area-inset-right,0px))}
+header h1{font-size:22px;margin:0 0 4px}
+header p{margin:0;color:var(--ink-2)}
+.tiles{display:grid;grid-template-columns:repeat(auto-fit,minmax(150px,1fr));gap:12px;margin:20px 0}
+.tile,.card{background:var(--surface-1);border:1px solid var(--border);border-radius:12px;padding:16px}
+.tile .label{color:var(--ink-2);font-size:13px}
+.tile .value{font-size:30px;font-weight:600;margin-top:2px}
+.tile .delta{font-size:13px;color:var(--ink-2)}
+.delta.up{color:var(--good)}.delta.down{color:var(--bad)}
+.grid2{display:grid;grid-template-columns:repeat(auto-fit,minmax(min(100%,480px),1fr));gap:12px}
+.card{margin-bottom:12px;min-width:0}
+.card h2{font-size:16px;margin:0 0 2px}
+.card .sub{color:var(--ink-2);font-size:13px;margin:0 0 10px}
+.brief h2{font-size:18px;margin:0 0 8px}.brief h3{font-size:15px;margin:16px 0 4px}
+.brief ol,.brief ul{margin:4px 0;padding-left:22px}.brief li{margin:3px 0}
+.chart{width:100%;height:auto;display:block;overflow:visible}
+.grid{stroke:var(--grid);stroke-width:1}.axis{stroke:var(--axis);stroke-width:1}
+.tick{fill:var(--muted);font-size:11px;font-variant-numeric:tabular-nums}
+.line{fill:none;stroke-width:2;stroke-linejoin:round;stroke-linecap:round}
+.direct{fill:var(--ink-2);font-size:12px}
+.cross{stroke:var(--axis);stroke-width:1}
+.hit{fill:transparent;cursor:crosshair}
+.dot{stroke:var(--surface-1);stroke-width:2}.dot.alert{cursor:pointer}
+.legend{display:flex;flex-wrap:wrap;gap:6px 16px;font-size:13px;color:var(--ink-2);margin-bottom:8px}
+.key{display:inline-flex;align-items:center;gap:6px}.swatch{font-size:12px}
+.tip{position:fixed;pointer-events:none;background:var(--surface-1);color:var(--ink);border:1px solid var(--border);
+border-radius:8px;padding:6px 10px;font-size:13px;box-shadow:0 4px 16px rgba(0,0,0,.12);display:none;z-index:9;max-width:280px}
+.tip b{display:block;font-weight:600}
+table{width:100%;border-collapse:collapse;font-size:13px}
+th,td{text-align:left;padding:7px 8px;border-bottom:1px solid var(--grid);vertical-align:top}
+th{color:var(--ink-2);font-weight:600}
+td.num{text-align:right;font-variant-numeric:tabular-nums}
+.badge{display:inline-flex;gap:4px;align-items:center;white-space:nowrap}
+.scroll{overflow-x:auto}
+footer{color:var(--muted);font-size:12px;margin-top:24px}
+</style></head><body><main>
+<header><h1>Vélib Pulse — supervision du réseau</h1>
+<p>Situation au 26/10/2026 à 20h30 (heure de Paris) · Kafka → ClickHouse → dbt → agent IA</p></header>
+<section class="tiles"><div class="tile"><div class="label">Vélos disponibles</div><div class="value">2 424</div><div class="delta down">▼ 111 vs hier même heure</div></div><div class="tile"><div class="label">Stations utilisables</div><div class="value">99%</div><div class="delta ">150 stations suivies</div></div><div class="tile"><div class="label">Anomalies actives</div><div class="value">9</div><div class="delta ">3 critique(s)</div></div><div class="tile"><div class="label">Stations à rééquilibrer</div><div class="value">4</div><div class="delta ">51 vélos à déplacer</div></div></section>
+<section class="card brief"><h2>Brief opérations — 26/10 20h30</h2>
+<ul>
+<li><strong>2424 vélos disponibles</strong> (-111 par rapport à hier même heure), 99% des stations utilisables.</li>
+<li><strong>6 panne(s) technique(s)</strong> à traiter, dont 3 critique(s).</li>
+<li><strong>4 station(s) à rééquilibrer</strong> maintenant.</li>
+</ul>
+<h3>Maintenance</h3>
+<ol>
+<li><strong>Parc Clichy - Clichy</strong> (15134, 28 places) — station muette (ne remonte plus de données) depuis le 26/10 18h00 (152 minutes sans remontée).</li>
+<li><strong>Lycée Pigalle - Jaurès</strong> (17092, 20 places) — station muette (ne remonte plus de données) depuis le 26/10 13h30 (422 minutes sans remontée).</li>
+<li><strong>Métro Pigalle - Saint-Michel</strong> (18017, 18 places) — station muette (ne remonte plus de données) depuis le 26/10 16h30 (242 minutes sans remontée).</li>
+<li><strong>Marché Gobelins - Lafayette</strong> (3129, 50 places) — bornettes hors service depuis le 26/10 17h00 (50% bornettes indisponibles).</li>
+<li><strong>Gare Montparnasse - Nation</strong> (5139, 45 places) — bornettes hors service depuis le 26/10 14h30 (49% bornettes indisponibles).</li>
+<li><strong>Parc Magenta - Montparnasse</strong> (8141, 25 places) — station fermée (ni prêt ni retour) depuis le 26/10 18h27 (125 minutes fermée).</li>
+</ol>
+<h3>Régulation</h3>
+<ol>
+<li><strong>Place Gobelins - Saint-Germain</strong> (4011) — retirer des vélos : 14 vélos.</li>
+<li><strong>Lycée Passy - Alésia</strong> (13120) — retirer des vélos : 14 vélos.</li>
+<li><strong>Square Passy - Lafayette</strong> (13005) — apporter des vélos : 14 vélos.</li>
+<li><strong>Square Tolbiac - Nation</strong> (16099) — apporter des vélos : 9 vélos.</li>
+</ol>
+<h3>À surveiller</h3>
+<p>Stations structurellement déséquilibrées (à revoir dans le plan de régulation) : Lycée Passy - Alésia (pleine la plupart de la journée), Place Gobelins - Saint-Germain (pleine la plupart de la journée), Square Tolbiac - Nation (vide la plupart de la journée).</p></section>
+<div class="grid2">
+<section class="card"><h2>Vélos disponibles sur le réseau</h2><p class="sub">48 dernières heures, par quart d'heure</p>
+<svg id="line-bikes" class="chart" viewBox="0 0 720 240" role="img" aria-label="Vélos disponibles">
+<line class="grid" x1="48" x2="648" y1="212.0" y2="212.0"/>
+<text class="tick" x="40" y="216.0" text-anchor="end">0</text>
+<line class="grid" x1="48" x2="648" y1="163.0" y2="163.0"/>
+<text class="tick" x="40" y="167.0" text-anchor="end">1 000</text>
+<line class="grid" x1="48" x2="648" y1="114.0" y2="114.0"/>
+<text class="tick" x="40" y="118.0" text-anchor="end">2 000</text>
+<line class="grid" x1="48" x2="648" y1="65.0" y2="65.0"/>
+<text class="tick" x="40" y="69.0" text-anchor="end">3 000</text>
+<line class="grid" x1="48" x2="648" y1="16.0" y2="16.0"/>
+<text class="tick" x="40" y="20.0" text-anchor="end">4 000</text>
+<text class="tick" x="79.2" y="232" text-anchor="middle">dim. 0h</text>
+<text class="tick" x="166.8" y="232" text-anchor="middle">06h</text>
+<text class="tick" x="241.8" y="232" text-anchor="middle">12h</text>
+<text class="tick" x="316.8" y="232" text-anchor="middle">18h</text>
+<text class="tick" x="391.8" y="232" text-anchor="middle">lun. 0h</text>
+<text class="tick" x="466.8" y="232" text-anchor="middle">06h</text>
+<text class="tick" x="541.8" y="232" text-anchor="middle">12h</text>
+<text class="tick" x="616.8" y="232" text-anchor="middle">18h</text>
+<line class="axis" x1="48" x2="648" y1="212.0" y2="212.0"/>
+<polyline class="line" style="stroke:var(--series-1)" points="48.0,89.5 51.1,89.6 54.2,89.5 57.4,89.2 60.5,90.1 63.6,89.9 66.8,90.4 69.9,90.6 73.0,90.9 76.1,91.3 79.2,91.3 82.4,92.7 85.5,92.6 88.6,92.6 91.8,92.6 94.9,93.0 98.0,92.8 101.1,92.5 104.2,92.1 107.4,92.3 110.5,91.7 113.6,91.9 116.8,91.9 119.9,92.3 123.0,92.0 126.1,92.0 129.2,92.6 132.4,91.9 135.5,92.5 138.6,92.0 141.8,91.9 144.9,91.8 148.0,90.7 151.1,90.6 154.2,90.2 157.4,90.0 160.5,89.7 163.6,89.2 166.8,89.2 169.9,89.8 173.0,89.5 176.1,89.9 179.2,90.3 182.4,90.9 185.5,91.3 188.6,92.0 191.8,92.4 194.9,92.5 198.0,92.2 201.1,93.1 204.2,93.0 207.4,93.3 210.5,93.5 213.6,94.1 216.8,94.4 219.9,93.4 223.0,93.5 226.1,92.8 229.2,92.5 232.4,91.5 235.5,90.4 238.6,89.3 241.8,88.2 244.9,87.2 248.0,85.6 251.1,84.1 254.2,83.0 257.4,81.7 260.5,80.7 263.6,80.3 266.8,80.3 269.9,80.0 273.0,78.8 276.1,79.7 279.2,80.1 282.4,80.3 285.5,80.0 288.6,80.0 291.8,80.2 294.9,80.4 298.0,80.7 301.1,80.5 304.2,80.5 307.4,81.1 310.5,81.6 313.6,83.0 316.8,82.8 319.9,83.7 323.0,84.1 326.1,85.5 329.2,85.6 332.4,86.9 335.5,86.3 338.6,86.8 341.8,87.2 344.9,87.2 348.0,87.8 351.1,87.9 354.2,87.9 357.4,88.2 360.5,88.9 363.6,89.3 366.8,90.0 369.9,91.1 373.0,91.1 376.1,91.5 379.2,91.9 382.4,91.6 385.5,92.0 388.6,91.9 391.8,92.8 394.9,92.4 398.0,92.0 401.1,91.8 404.2,91.9 407.4,92.1 410.5,92.5 413.6,91.8 416.8,91.9 419.9,92.9 423.0,92.4 426.1,92.9 429.2,92.5 432.4,91.6 435.5,91.8 438.6,91.9 441.8,91.3 444.9,90.9 448.0,90.6 451.1,90.3 454.2,90.6 457.4,91.3 460.5,91.6 463.6,92.4 466.8,94.2 469.9,95.8 473.0,98.8 476.1,100.5 479.2,102.5 482.4,104.8 485.5,106.7 488.6,107.4 491.8,107.2 494.9,106.4 498.0,103.9 501.1,101.1 504.2,96.8 507.4,91.8 510.5,87.1 513.6,81.0 516.8,76.6 519.9,71.1 523.0,66.9 526.1,63.1 529.2,60.1 532.4,58.0 535.5,55.9 538.6,54.3 541.8,54.0 544.9,54.0 548.0,54.8 551.1,55.3 554.2,56.2 557.4,58.3 560.5,59.4 563.6,61.5 566.8,63.0 569.9,65.4 573.0,68.4 576.1,70.1 579.2,72.3 582.4,73.0 585.5,74.9 588.6,77.4 591.8,78.6 594.9,80.2 598.0,81.7 601.1,83.7 604.2,85.7 607.4,87.3 610.5,88.2 613.6,89.8 616.8,91.0 619.9,91.4 623.0,92.2 626.1,93.1 629.2,93.6 632.4,93.0 635.5,93.0 638.6,92.7 641.8,93.2 644.9,93.4 648.0,93.2"/>
+<line class="cross" x1="0" x2="0" y1="16" y2="212.0" visibility="hidden"/>
+<rect class="hit" x="48" y="16" width="600" height="196"/>
+</svg>
+<script type="application/json" id="line-bikes-data">{"labels": ["sam. 24/10 21h30", "sam. 24/10 21h45", "sam. 24/10 22h00", "sam. 24/10 22h15", "sam. 24/10 22h30", "sam. 24/10 22h45", "sam. 24/10 23h00", "sam. 24/10 23h15", "sam. 24/10 23h30", "sam. 24/10 23h45", "dim. 25/10 00h00", "dim. 25/10 00h15", "dim. 25/10 00h30", "dim. 25/10 00h45", "dim. 25/10 01h00", "dim. 25/10 01h15", "dim. 25/10 01h30", "dim. 25/10 01h45", "dim. 25/10 02h00", "dim. 25/10 02h15", "dim. 25/10 02h30", "dim. 25/10 02h45", "dim. 25/10 02h00", "dim. 25/10 02h15", "dim. 25/10 02h30", "dim. 25/10 02h45", "dim. 25/10 03h00", "dim. 25/10 03h15", "dim. 25/10 03h30", "dim. 25/10 03h45", "dim. 25/10 04h00", "dim. 25/10 04h15", "dim. 25/10 04h30", "dim. 25/10 04h45", "dim. 25/10 05h00", "dim. 25/10 05h15", "dim. 25/10 05h30", "dim. 25/10 05h45", "dim. 25/10 06h00", "dim. 25/10 06h15", "dim. 25/10 06h30", "dim. 25/10 06h45", "dim. 25/10 07h00", "dim. 25/10 07h15", "dim. 25/10 07h30", "dim. 25/10 07h45", "dim. 25/10 08h00", "dim. 25/10 08h15", "dim. 25/10 08h30", "dim. 25/10 08h45", "dim. 25/10 09h00", "dim. 25/10 09h15", "dim. 25/10 09h30", "dim. 25/10 09h45", "dim. 25/10 10h00", "dim. 25/10 10h15", "dim. 25/10 10h30", "dim. 25/10 10h45", "dim. 25/10 11h00", "dim. 25/10 11h15", "dim. 25/10 11h30", "dim. 25/10 11h45", "dim. 25/10 12h00", "dim. 25/10 12h15", "dim. 25/10 12h30", "dim. 25/10 12h45", "dim. 25/10 13h00", "dim. 25/10 13h15", "dim. 25/10 13h30", "dim. 25/10 13h45", "dim. 25/10 14h00", "dim. 25/10 14h15", "dim. 25/10 14h30", "dim. 25/10 14h45", "dim. 25/10 15h00", "dim. 25/10 15h15", "dim. 25/10 15h30", "dim. 25/10 15h45", "dim. 25/10 16h00", "dim. 25/10 16h15", "dim. 25/10 16h30", "dim. 25/10 16h45", "dim. 25/10 17h00", "dim. 25/10 17h15", "dim. 25/10 17h30", "dim. 25/10 17h45", "dim. 25/10 18h00", "dim. 25/10 18h15", "dim. 25/10 18h30", "dim. 25/10 18h45", "dim. 25/10 19h00", "dim. 25/10 19h15", "dim. 25/10 19h30", "dim. 25/10 19h45", "dim. 25/10 20h00", "dim. 25/10 20h15", "dim. 25/10 20h30", "dim. 25/10 20h45", "dim. 25/10 21h00", "dim. 25/10 21h15", "dim. 25/10 21h30", "dim. 25/10 21h45", "dim. 25/10 22h00", "dim. 25/10 22h15", "dim. 25/10 22h30", "dim. 25/10 22h45", "dim. 25/10 23h00", "dim. 25/10 23h15", "dim. 25/10 23h30", "dim. 25/10 23h45", "lun. 26/10 00h00", "lun. 26/10 00h15", "lun. 26/10 00h30", "lun. 26/10 00h45", "lun. 26/10 01h00", "lun. 26/10 01h15", "lun. 26/10 01h30", "lun. 26/10 01h45", "lun. 26/10 02h00", "lun. 26/10 02h15", "lun. 26/10 02h30", "lun. 26/10 02h45", "lun. 26/10 03h00", "lun. 26/10 03h15", "lun. 26/10 03h30", "lun. 26/10 03h45", "lun. 26/10 04h00", "lun. 26/10 04h15", "lun. 26/10 04h30", "lun. 26/10 04h45", "lun. 26/10 05h00", "lun. 26/10 05h15", "lun. 26/10 05h30", "lun. 26/10 05h45", "lun. 26/10 06h00", "lun. 26/10 06h15", "lun. 26/10 06h30", "lun. 26/10 06h45", "lun. 26/10 07h00", "lun. 26/10 07h15", "lun. 26/10 07h30", "lun. 26/10 07h45", "lun. 26/10 08h00", "lun. 26/10 08h15", "lun. 26/10 08h30", "lun. 26/10 08h45", "lun. 26/10 09h00", "lun. 26/10 09h15", "lun. 26/10 09h30", "lun. 26/10 09h45", "lun. 26/10 10h00", "lun. 26/10 10h15", "lun. 26/10 10h30", "lun. 26/10 10h45", "lun. 26/10 11h00", "lun. 26/10 11h15", "lun. 26/10 11h30", "lun. 26/10 11h45", "lun. 26/10 12h00", "lun. 26/10 12h15", "lun. 26/10 12h30", "lun. 26/10 12h45", "lun. 26/10 13h00", "lun. 26/10 13h15", "lun. 26/10 13h30", "lun. 26/10 13h45", "lun. 26/10 14h00", "lun. 26/10 14h15", "lun. 26/10 14h30", "lun. 26/10 14h45", "lun. 26/10 15h00", "lun. 26/10 15h15", "lun. 26/10 15h30", "lun. 26/10 15h45", "lun. 26/10 16h00", "lun. 26/10 16h15", "lun. 26/10 16h30", "lun. 26/10 16h45", "lun. 26/10 17h00", "lun. 26/10 17h15", "lun. 26/10 17h30", "lun. 26/10 17h45", "lun. 26/10 18h00", "lun. 26/10 18h15", "lun. 26/10 18h30", "lun. 26/10 18h45", "lun. 26/10 19h00", "lun. 26/10 19h15", "lun. 26/10 19h30", "lun. 26/10 19h45", "lun. 26/10 20h00", "lun. 26/10 20h15", "lun. 26/10 20h30"], "series": [{"name": "V\u00e9los", "color": "--series-1", "values": [2501.0, 2498.0, 2500.0, 2507.0, 2487.0, 2492.0, 2481.0, 2477.0, 2471.0, 2464.0, 2463.0, 2434.0, 2437.0, 2437.0, 2436.0, 2429.0, 2432.0, 2439.0, 2447.0, 2443.0, 2455.0, 2452.0, 2451.0, 2442.0, 2448.0, 2448.0, 2436.0, 2451.0, 2439.0, 2449.0, 2451.0, 2453.0, 2475.0, 2477.0, 2485.0, 2490.0, 2496.0, 2506.0, 2506.0, 2494.0, 2500.0, 2491.0, 2484.0, 2471.0, 2463.0, 2448.0, 2440.0, 2439.0, 2444.0, 2426.0, 2428.0, 2423.0, 2418.0, 2406.0, 2399.0, 2421.0, 2418.0, 2433.0, 2439.0, 2460.0, 2482.0, 2505.0, 2526.0, 2546.0, 2579.0, 2610.0, 2632.0, 2659.0, 2680.0, 2687.0, 2688.0, 2694.0, 2719.0, 2700.0, 2692.0, 2688.0, 2694.0, 2693.0, 2689.0, 2685.0, 2680.0, 2684.0, 2683.0, 2672.0, 2661.0, 2633.0, 2636.0, 2618.0, 2610.0, 2582.0, 2580.0, 2553.0, 2566.0, 2556.0, 2546.0, 2547.0, 2535.0, 2532.0, 2533.0, 2526.0, 2512.0, 2504.0, 2489.0, 2468.0, 2468.0, 2460.0, 2452.0, 2457.0, 2449.0, 2451.0, 2432.0, 2440.0, 2448.0, 2453.0, 2452.0, 2446.0, 2438.0, 2453.0, 2450.0, 2431.0, 2440.0, 2430.0, 2439.0, 2458.0, 2454.0, 2451.0, 2463.0, 2472.0, 2477.0, 2484.0, 2478.0, 2463.0, 2457.0, 2441.0, 2404.0, 2372.0, 2311.0, 2276.0, 2235.0, 2188.0, 2149.0, 2135.0, 2138.0, 2156.0, 2206.0, 2264.0, 2352.0, 2453.0, 2549.0, 2673.0, 2763.0, 2876.0, 2961.0, 3038.0, 3100.0, 3142.0, 3185.0, 3219.0, 3225.0, 3225.0, 3209.0, 3198.0, 3180.0, 3136.0, 3114.0, 3071.0, 3040.0, 2991.0, 2930.0, 2896.0, 2851.0, 2836.0, 2798.0, 2747.0, 2723.0, 2690.0, 2659.0, 2619.0, 2577.0, 2544.0, 2527.0, 2494.0, 2470.0, 2462.0, 2444.0, 2427.0, 2417.0, 2428.0, 2429.0, 2434.0, 2424.0, 2421.0, 2424.0]}], "geom": {"padL": 48, "padR": 72, "W": 720, "n": 193}}</script></section>
+<section class="card"><h2>Stations en panne technique</h2><p class="sub">Muettes, fermées ou avec des bornettes hors service</p>
+<svg id="line-faulty" class="chart" viewBox="0 0 720 240" role="img" aria-label="Stations en panne technique">
+<line class="grid" x1="48" x2="648" y1="212.0" y2="212.0"/>
+<text class="tick" x="40" y="216.0" text-anchor="end">0</text>
+<line class="grid" x1="48" x2="648" y1="163.0" y2="163.0"/>
+<text class="tick" x="40" y="167.0" text-anchor="end">2</text>
+<line class="grid" x1="48" x2="648" y1="114.0" y2="114.0"/>
+<text class="tick" x="40" y="118.0" text-anchor="end">4</text>
+<line class="grid" x1="48" x2="648" y1="65.0" y2="65.0"/>
+<text class="tick" x="40" y="69.0" text-anchor="end">5</text>
+<line class="grid" x1="48" x2="648" y1="16.0" y2="16.0"/>
+<text class="tick" x="40" y="20.0" text-anchor="end">7</text>
+<text class="tick" x="79.2" y="232" text-anchor="middle">dim. 0h</text>
+<text class="tick" x="166.8" y="232" text-anchor="middle">06h</text>
+<text class="tick" x="241.8" y="232" text-anchor="middle">12h</text>
+<text class="tick" x="316.8" y="232" text-anchor="middle">18h</text>
+<text class="tick" x="391.8" y="232" text-anchor="middle">lun. 0h</text>
+<text class="tick" x="466.8" y="232" text-anchor="middle">06h</text>
+<text class="tick" x="541.8" y="232" text-anchor="middle">12h</text>
+<text class="tick" x="616.8" y="232" text-anchor="middle">18h</text>
+<line class="axis" x1="48" x2="648" y1="212.0" y2="212.0"/>
+<polyline class="line" style="stroke:var(--series-2)" points="48.0,212.0 51.1,212.0 54.2,212.0 57.4,212.0 60.5,212.0 63.6,212.0 66.8,212.0 69.9,212.0 73.0,212.0 76.1,212.0 79.2,212.0 82.4,212.0 85.5,212.0 88.6,212.0 91.8,212.0 94.9,212.0 98.0,212.0 101.1,212.0 104.2,212.0 107.4,212.0 110.5,212.0 113.6,212.0 116.8,212.0 119.9,212.0 123.0,212.0 126.1,212.0 129.2,212.0 132.4,212.0 135.5,212.0 138.6,212.0 141.8,212.0 144.9,212.0 148.0,212.0 151.1,212.0 154.2,212.0 157.4,212.0 160.5,212.0 163.6,212.0 166.8,212.0 169.9,212.0 173.0,212.0 176.1,212.0 179.2,212.0 182.4,212.0 185.5,212.0 188.6,212.0 191.8,212.0 194.9,212.0 198.0,212.0 201.1,212.0 204.2,212.0 207.4,212.0 210.5,212.0 213.6,212.0 216.8,212.0 219.9,212.0 223.0,212.0 226.1,212.0 229.2,212.0 232.4,212.0 235.5,212.0 238.6,212.0 241.8,212.0 244.9,212.0 248.0,212.0 251.1,212.0 254.2,212.0 257.4,212.0 260.5,212.0 263.6,212.0 266.8,212.0 269.9,212.0 273.0,212.0 276.1,212.0 279.2,212.0 282.4,212.0 285.5,212.0 288.6,212.0 291.8,212.0 294.9,212.0 298.0,212.0 301.1,212.0 304.2,212.0 307.4,212.0 310.5,212.0 313.6,212.0 316.8,212.0 319.9,212.0 323.0,212.0 326.1,212.0 329.2,212.0 332.4,212.0 335.5,212.0 338.6,212.0 341.8,212.0 344.9,212.0 348.0,212.0 351.1,212.0 354.2,212.0 357.4,212.0 360.5,212.0 363.6,212.0 366.8,212.0 369.9,212.0 373.0,212.0 376.1,212.0 379.2,212.0 382.4,212.0 385.5,212.0 388.6,212.0 391.8,212.0 394.9,212.0 398.0,212.0 401.1,212.0 404.2,212.0 407.4,212.0 410.5,212.0 413.6,212.0 416.8,212.0 419.9,212.0 423.0,212.0 426.1,212.0 429.2,212.0 432.4,212.0 435.5,212.0 438.6,212.0 441.8,212.0 444.9,212.0 448.0,212.0 451.1,212.0 454.2,212.0 457.4,212.0 460.5,212.0 463.6,212.0 466.8,212.0 469.9,212.0 473.0,212.0 476.1,212.0 479.2,212.0 482.4,212.0 485.5,212.0 488.6,212.0 491.8,212.0 494.9,212.0 498.0,212.0 501.1,212.0 504.2,212.0 507.4,212.0 510.5,212.0 513.6,212.0 516.8,212.0 519.9,212.0 523.0,212.0 526.1,212.0 529.2,212.0 532.4,212.0 535.5,212.0 538.6,212.0 541.8,212.0 544.9,212.0 548.0,212.0 551.1,212.0 554.2,212.0 557.4,212.0 560.5,212.0 563.6,212.0 566.8,212.0 569.9,212.0 573.0,156.0 576.1,156.0 579.2,156.0 582.4,156.0 585.5,156.0 588.6,156.0 591.8,156.0 594.9,156.0 598.0,156.0 601.1,156.0 604.2,128.0 607.4,128.0 610.5,100.0 613.6,100.0 616.8,100.0 619.9,100.0 623.0,72.0 626.1,72.0 629.2,44.0 632.4,44.0 635.5,44.0 638.6,44.0 641.8,44.0 644.9,44.0 648.0,44.0"/>
+<line class="cross" x1="0" x2="0" y1="16" y2="212.0" visibility="hidden"/>
+<rect class="hit" x="48" y="16" width="600" height="196"/>
+</svg>
+<script type="application/json" id="line-faulty-data">{"labels": ["sam. 24/10 21h30", "sam. 24/10 21h45", "sam. 24/10 22h00", "sam. 24/10 22h15", "sam. 24/10 22h30", "sam. 24/10 22h45", "sam. 24/10 23h00", "sam. 24/10 23h15", "sam. 24/10 23h30", "sam. 24/10 23h45", "dim. 25/10 00h00", "dim. 25/10 00h15", "dim. 25/10 00h30", "dim. 25/10 00h45", "dim. 25/10 01h00", "dim. 25/10 01h15", "dim. 25/10 01h30", "dim. 25/10 01h45", "dim. 25/10 02h00", "dim. 25/10 02h15", "dim. 25/10 02h30", "dim. 25/10 02h45", "dim. 25/10 02h00", "dim. 25/10 02h15", "dim. 25/10 02h30", "dim. 25/10 02h45", "dim. 25/10 03h00", "dim. 25/10 03h15", "dim. 25/10 03h30", "dim. 25/10 03h45", "dim. 25/10 04h00", "dim. 25/10 04h15", "dim. 25/10 04h30", "dim. 25/10 04h45", "dim. 25/10 05h00", "dim. 25/10 05h15", "dim. 25/10 05h30", "dim. 25/10 05h45", "dim. 25/10 06h00", "dim. 25/10 06h15", "dim. 25/10 06h30", "dim. 25/10 06h45", "dim. 25/10 07h00", "dim. 25/10 07h15", "dim. 25/10 07h30", "dim. 25/10 07h45", "dim. 25/10 08h00", "dim. 25/10 08h15", "dim. 25/10 08h30", "dim. 25/10 08h45", "dim. 25/10 09h00", "dim. 25/10 09h15", "dim. 25/10 09h30", "dim. 25/10 09h45", "dim. 25/10 10h00", "dim. 25/10 10h15", "dim. 25/10 10h30", "dim. 25/10 10h45", "dim. 25/10 11h00", "dim. 25/10 11h15", "dim. 25/10 11h30", "dim. 25/10 11h45", "dim. 25/10 12h00", "dim. 25/10 12h15", "dim. 25/10 12h30", "dim. 25/10 12h45", "dim. 25/10 13h00", "dim. 25/10 13h15", "dim. 25/10 13h30", "dim. 25/10 13h45", "dim. 25/10 14h00", "dim. 25/10 14h15", "dim. 25/10 14h30", "dim. 25/10 14h45", "dim. 25/10 15h00", "dim. 25/10 15h15", "dim. 25/10 15h30", "dim. 25/10 15h45", "dim. 25/10 16h00", "dim. 25/10 16h15", "dim. 25/10 16h30", "dim. 25/10 16h45", "dim. 25/10 17h00", "dim. 25/10 17h15", "dim. 25/10 17h30", "dim. 25/10 17h45", "dim. 25/10 18h00", "dim. 25/10 18h15", "dim. 25/10 18h30", "dim. 25/10 18h45", "dim. 25/10 19h00", "dim. 25/10 19h15", "dim. 25/10 19h30", "dim. 25/10 19h45", "dim. 25/10 20h00", "dim. 25/10 20h15", "dim. 25/10 20h30", "dim. 25/10 20h45", "dim. 25/10 21h00", "dim. 25/10 21h15", "dim. 25/10 21h30", "dim. 25/10 21h45", "dim. 25/10 22h00", "dim. 25/10 22h15", "dim. 25/10 22h30", "dim. 25/10 22h45", "dim. 25/10 23h00", "dim. 25/10 23h15", "dim. 25/10 23h30", "dim. 25/10 23h45", "lun. 26/10 00h00", "lun. 26/10 00h15", "lun. 26/10 00h30", "lun. 26/10 00h45", "lun. 26/10 01h00", "lun. 26/10 01h15", "lun. 26/10 01h30", "lun. 26/10 01h45", "lun. 26/10 02h00", "lun. 26/10 02h15", "lun. 26/10 02h30", "lun. 26/10 02h45", "lun. 26/10 03h00", "lun. 26/10 03h15", "lun. 26/10 03h30", "lun. 26/10 03h45", "lun. 26/10 04h00", "lun. 26/10 04h15", "lun. 26/10 04h30", "lun. 26/10 04h45", "lun. 26/10 05h00", "lun. 26/10 05h15", "lun. 26/10 05h30", "lun. 26/10 05h45", "lun. 26/10 06h00", "lun. 26/10 06h15", "lun. 26/10 06h30", "lun. 26/10 06h45", "lun. 26/10 07h00", "lun. 26/10 07h15", "lun. 26/10 07h30", "lun. 26/10 07h45", "lun. 26/10 08h00", "lun. 26/10 08h15", "lun. 26/10 08h30", "lun. 26/10 08h45", "lun. 26/10 09h00", "lun. 26/10 09h15", "lun. 26/10 09h30", "lun. 26/10 09h45", "lun. 26/10 10h00", "lun. 26/10 10h15", "lun. 26/10 10h30", "lun. 26/10 10h45", "lun. 26/10 11h00", "lun. 26/10 11h15", "lun. 26/10 11h30", "lun. 26/10 11h45", "lun. 26/10 12h00", "lun. 26/10 12h15", "lun. 26/10 12h30", "lun. 26/10 12h45", "lun. 26/10 13h00", "lun. 26/10 13h15", "lun. 26/10 13h30", "lun. 26/10 13h45", "lun. 26/10 14h00", "lun. 26/10 14h15", "lun. 26/10 14h30", "lun. 26/10 14h45", "lun. 26/10 15h00", "lun. 26/10 15h15", "lun. 26/10 15h30", "lun. 26/10 15h45", "lun. 26/10 16h00", "lun. 26/10 16h15", "lun. 26/10 16h30", "lun. 26/10 16h45", "lun. 26/10 17h00", "lun. 26/10 17h15", "lun. 26/10 17h30", "lun. 26/10 17h45", "lun. 26/10 18h00", "lun. 26/10 18h15", "lun. 26/10 18h30", "lun. 26/10 18h45", "lun. 26/10 19h00", "lun. 26/10 19h15", "lun. 26/10 19h30", "lun. 26/10 19h45", "lun. 26/10 20h00", "lun. 26/10 20h15", "lun. 26/10 20h30"], "series": [{"name": "Stations en panne", "color": "--series-2", "values": [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 3, 3, 4, 4, 4, 4, 5, 5, 6, 6, 6, 6, 6, 6, 6]}], "geom": {"padL": 48, "padR": 72, "W": 720, "n": 193}}</script></section>
+</div>
+<section class="card"><h2>Carte des stations</h2><p class="sub">Survolez un point pour le détail</p><div class="legend"><span class="key"><span class="swatch" style="color:var(--status-critical)">▲</span>Critique : station muette</span><span class="key"><span class="swatch" style="color:var(--status-serious)">◆</span>Élevée : panne ou fermeture</span><span class="key"><span class="swatch" style="color:var(--status-warning)">●</span>Moyenne : déséquilibre chronique</span><span class="key"><span class="swatch" style="color:var(--series-1)">●</span>À rééquilibrer</span><span class="key"><span class="swatch" style="color:var(--muted)">●</span>Normale</span></div><svg id="map" class="chart" viewBox="0 0 720 576" role="img" aria-label="Carte des stations">
+<circle class="dot" cx="681.3" cy="399.6" r="4" style="fill:var(--muted)" data-tip="Parc Ménilmontant - République (18023) · 50 places"/>
+<circle class="dot" cx="92.3" cy="285.6" r="4" style="fill:var(--muted)" data-tip="Place Gobelins - Voltaire (9012) · 60 places"/>
+<circle class="dot" cx="559.2" cy="410.6" r="4" style="fill:var(--muted)" data-tip="Marché Nation - Oberkampf (17084) · 35 places"/>
+<circle class="dot" cx="155.6" cy="438.5" r="4" style="fill:var(--muted)" data-tip="Métro Jaurès - Montparnasse (3043) · 18 places"/>
+<circle class="dot" cx="586.4" cy="404.9" r="4" style="fill:var(--muted)" data-tip="Marché Ménilmontant - Saint-Antoine (11146) · 22 places"/>
+<circle class="dot" cx="300.4" cy="368.4" r="4" style="fill:var(--muted)" data-tip="Gare Jaurès - Grenelle (4019) · 18 places"/>
+<circle class="dot" cx="279.4" cy="146.2" r="4" style="fill:var(--muted)" data-tip="Mairie Nation - Gambetta (19050) · 18 places"/>
+<circle class="dot" cx="258.6" cy="483.5" r="4" style="fill:var(--muted)" data-tip="Gare Pigalle - Jaurès (11136) · 60 places"/>
+<circle class="dot" cx="322.3" cy="515.8" r="4" style="fill:var(--muted)" data-tip="Théâtre Saint-Antoine - Jaurès (6121) · 35 places"/>
+<circle class="dot" cx="109.0" cy="379.7" r="4" style="fill:var(--muted)" data-tip="Square Saint-Antoine - Rivoli (14031) · 28 places"/>
+<circle class="dot" cx="335.0" cy="27.9" r="4" style="fill:var(--muted)" data-tip="Église Jaurès - Pigalle (7142) · 28 places"/>
+<circle class="dot" cx="589.1" cy="474.6" r="4" style="fill:var(--muted)" data-tip="Métro Convention - Montparnasse (3028) · 28 places"/>
+<circle class="dot" cx="21.4" cy="519.3" r="4" style="fill:var(--muted)" data-tip="Métro Voltaire - Batignolles (6072) · 40 places"/>
+<circle class="dot" cx="444.0" cy="106.4" r="4" style="fill:var(--muted)" data-tip="Mairie Saint-Michel - République (2055) · 25 places"/>
+<circle class="dot" cx="337.0" cy="428.1" r="4" style="fill:var(--muted)" data-tip="Square Gambetta - Passy (3061) · 50 places"/>
+<circle class="dot" cx="132.4" cy="48.3" r="4" style="fill:var(--muted)" data-tip="Marché Jaurès - Wagram (5015) · 45 places"/>
+<circle class="dot" cx="679.0" cy="491.7" r="4" style="fill:var(--muted)" data-tip="Marché Wagram - Saint-Antoine (13087) · 30 places"/>
+<circle class="dot" cx="39.4" cy="398.1" r="4" style="fill:var(--muted)" data-tip="Parc Voltaire - Bercy (4091) · 30 places"/>
+<circle class="dot" cx="114.9" cy="427.6" r="4" style="fill:var(--muted)" data-tip="Mairie Tolbiac - Saint-Germain (4000) · 20 places"/>
+<circle class="dot" cx="666.4" cy="85.5" r="4" style="fill:var(--muted)" data-tip="Métro Saint-Antoine - Saint-Michel (10014) · 20 places"/>
+<circle class="dot" cx="98.6" cy="28.1" r="4" style="fill:var(--muted)" data-tip="Église Grenelle - Magenta (12038) · 50 places"/>
+<circle class="dot" cx="335.4" cy="427.6" r="4" style="fill:var(--muted)" data-tip="Marché Batignolles - Tolbiac (20006) · 28 places"/>
+<circle class="dot" cx="560.5" cy="260.4" r="4" style="fill:var(--muted)" data-tip="Lycée Passy - Pigalle (17132) · 18 places"/>
+<circle class="dot" cx="176.0" cy="545.9" r="4" style="fill:var(--muted)" data-tip="Église Magenta - Saint-Germain (14076) · 60 places"/>
+<circle class="dot" cx="109.6" cy="91.7" r="4" style="fill:var(--muted)" data-tip="Marché Belleville - Jaurès (9108) · 30 places"/>
+<circle class="dot" cx="293.6" cy="124.9" r="4" style="fill:var(--muted)" data-tip="Métro Daumesnil - Saint-Antoine (2007) · 20 places"/>
+<circle class="dot" cx="527.2" cy="197.6" r="4" style="fill:var(--muted)" data-tip="Lycée Passy - Convention (5103) · 45 places"/>
+<circle class="dot" cx="326.0" cy="457.1" r="4" style="fill:var(--muted)" data-tip="Gare Saint-Michel - République (11020) · 35 places"/>
+<circle class="dot" cx="214.8" cy="518.0" r="4" style="fill:var(--muted)" data-tip="Métro Saint-Germain - Passy (16048) · 28 places"/>
+<circle class="dot" cx="426.8" cy="335.0" r="4" style="fill:var(--muted)" data-tip="Gare Batignolles - Gobelins (8070) · 50 places"/>
+<circle class="dot" cx="671.0" cy="422.2" r="4" style="fill:var(--muted)" data-tip="Lycée Alésia - Jaurès (11114) · 60 places"/>
+<circle class="dot" cx="210.6" cy="420.3" r="4" style="fill:var(--muted)" data-tip="Métro Convention - Mouffetard (16062) · 50 places"/>
+<circle class="dot" cx="638.0" cy="412.5" r="4" style="fill:var(--muted)" data-tip="Gare Gobelins - Voltaire (10144) · 22 places"/>
+<circle class="dot" cx="643.2" cy="23.7" r="4" style="fill:var(--muted)" data-tip="Lycée Oberkampf - Saint-Michel (18082) · 40 places"/>
+<circle class="dot" cx="700.0" cy="20.4" r="4" style="fill:var(--muted)" data-tip="Mairie Passy - Magenta (3027) · 20 places"/>
+<circle class="dot" cx="117.2" cy="212.5" r="4" style="fill:var(--muted)" data-tip="Lycée Gambetta - Pyrénées (16008) · 22 places"/>
+<circle class="dot" cx="50.9" cy="179.2" r="4" style="fill:var(--muted)" data-tip="Église Pigalle - République (20004) · 25 places"/>
+<circle class="dot" cx="606.6" cy="99.3" r="4" style="fill:var(--muted)" data-tip="Gare Nation - Alésia (13089) · 35 places"/>
+<circle class="dot" cx="611.8" cy="136.7" r="4" style="fill:var(--muted)" data-tip="Théâtre Saint-Antoine - Tolbiac (8110) · 45 places"/>
+<circle class="dot" cx="290.5" cy="42.1" r="4" style="fill:var(--muted)" data-tip="Théâtre Jaurès - Pyrénées (10057) · 25 places"/>
+<circle class="dot" cx="280.9" cy="181.0" r="4" style="fill:var(--muted)" data-tip="Square Voltaire - Mouffetard (8035) · 18 places"/>
+<circle class="dot" cx="436.0" cy="224.3" r="4" style="fill:var(--muted)" data-tip="Lycée Montparnasse - Pigalle (19071) · 20 places"/>
+<circle class="dot" cx="223.9" cy="26.2" r="4" style="fill:var(--muted)" data-tip="Gare Passy - Convention (6094) · 35 places"/>
+<circle class="dot" cx="431.7" cy="264.8" r="4" style="fill:var(--muted)" data-tip="Place Tolbiac - Tolbiac (14051) · 25 places"/>
+<circle class="dot" cx="412.2" cy="250.8" r="4" style="fill:var(--muted)" data-tip="Gare Saint-Michel - Vaugirard (16095) · 28 places"/>
+<circle class="dot" cx="293.4" cy="253.9" r="4" style="fill:var(--muted)" data-tip="Marché Nation - Ménilmontant (1119) · 22 places"/>
+<circle class="dot" cx="230.6" cy="550.0" r="4" style="fill:var(--muted)" data-tip="Lycée Clichy - Convention (3138) · 25 places"/>
+<circle class="dot" cx="21.1" cy="470.9" r="4" style="fill:var(--muted)" data-tip="Lycée Gambetta - Saint-Antoine (7022) · 35 places"/>
+<circle class="dot" cx="537.5" cy="295.9" r="4" style="fill:var(--muted)" data-tip="Métro Tolbiac - Grenelle (3063) · 40 places"/>
+<circle class="dot" cx="58.5" cy="272.9" r="4" style="fill:var(--muted)" data-tip="Place Pyrénées - Nation (16024) · 45 places"/>
+<circle class="dot" cx="452.8" cy="449.9" r="4" style="fill:var(--muted)" data-tip="Métro Bercy - Alésia (20030) · 28 places"/>
+<circle class="dot" cx="20.7" cy="402.5" r="4" style="fill:var(--muted)" data-tip="Métro Bercy - Ménilmontant (19149) · 30 places"/>
+<circle class="dot" cx="186.0" cy="134.7" r="4" style="fill:var(--muted)" data-tip="Théâtre Rivoli - Saint-Antoine (7106) · 22 places"/>
+<circle class="dot" cx="457.6" cy="424.8" r="4" style="fill:var(--muted)" data-tip="Théâtre Ménilmontant - Nation (7143) · 30 places"/>
+<circle class="dot" cx="174.1" cy="409.4" r="4" style="fill:var(--muted)" data-tip="Église Belleville - Gobelins (18117) · 35 places"/>
+<circle class="dot" cx="473.3" cy="522.1" r="4" style="fill:var(--muted)" data-tip="Métro Convention - Grenelle (18039) · 30 places"/>
+<circle class="dot" cx="349.2" cy="335.4" r="4" style="fill:var(--muted)" data-tip="Place Bercy - Saint-Germain (10083) · 40 places"/>
+<circle class="dot" cx="291.6" cy="366.1" r="4" style="fill:var(--muted)" data-tip="Place Gambetta - Lafayette (12105) · 25 places"/>
+<circle class="dot" cx="449.5" cy="519.9" r="4" style="fill:var(--muted)" data-tip="Gare Vaugirard - Wagram (4069) · 18 places"/>
+<circle class="dot" cx="699.0" cy="384.2" r="4" style="fill:var(--muted)" data-tip="Théâtre Batignolles - Bercy (20112) · 45 places"/>
+<circle class="dot" cx="39.3" cy="298.0" r="4" style="fill:var(--muted)" data-tip="Parc Gambetta - Bercy (10081) · 60 places"/>
+<circle class="dot" cx="90.4" cy="391.1" r="4" style="fill:var(--muted)" data-tip="Mairie Montparnasse - Magenta (14116) · 45 places"/>
+<circle class="dot" cx="230.6" cy="210.6" r="4" style="fill:var(--muted)" data-tip="Gare Gambetta - Lafayette (5097) · 40 places"/>
+<circle class="dot" cx="91.7" cy="115.5" r="4" style="fill:var(--muted)" data-tip="Mairie Nation - Grenelle (11059) · 30 places"/>
+<circle class="dot" cx="487.1" cy="433.0" r="4" style="fill:var(--muted)" data-tip="Mairie Magenta - Oberkampf (18090) · 28 places"/>
+<circle class="dot" cx="528.9" cy="275.6" r="4" style="fill:var(--muted)" data-tip="Marché Tolbiac - Grenelle (2109) · 40 places"/>
+<circle class="dot" cx="531.2" cy="305.8" r="4" style="fill:var(--muted)" data-tip="Square Daumesnil - Oberkampf (14054) · 18 places"/>
+<circle class="dot" cx="493.3" cy="204.4" r="4" style="fill:var(--muted)" data-tip="Mairie Magenta - Pyrénées (18118) · 18 places"/>
+<circle class="dot" cx="700.0" cy="353.7" r="4" style="fill:var(--muted)" data-tip="Théâtre Oberkampf - Vaugirard (14010) · 45 places"/>
+<circle class="dot" cx="89.8" cy="425.1" r="4" style="fill:var(--muted)" data-tip="Église République - Jaurès (2033) · 45 places"/>
+<circle class="dot" cx="460.5" cy="42.1" r="4" style="fill:var(--muted)" data-tip="Église Convention - Tolbiac (7128) · 22 places"/>
+<circle class="dot" cx="328.0" cy="443.7" r="4" style="fill:var(--muted)" data-tip="Place Tolbiac - Nation (4113) · 25 places"/>
+<circle class="dot" cx="641.0" cy="295.0" r="4" style="fill:var(--muted)" data-tip="Lycée Jaurès - Belleville (13111) · 20 places"/>
+<circle class="dot" cx="50.6" cy="496.8" r="4" style="fill:var(--muted)" data-tip="Square Lafayette - Grenelle (15102) · 18 places"/>
+<circle class="dot" cx="530.5" cy="231.8" r="4" style="fill:var(--muted)" data-tip="Église Voltaire - Magenta (9056) · 20 places"/>
+<circle class="dot" cx="589.1" cy="340.5" r="4" style="fill:var(--muted)" data-tip="Théâtre Pigalle - Montparnasse (6041) · 28 places"/>
+<circle class="dot" cx="483.0" cy="406.8" r="4" style="fill:var(--muted)" data-tip="Église Grenelle - Belleville (4122) · 40 places"/>
+<circle class="dot" cx="422.3" cy="410.5" r="4" style="fill:var(--muted)" data-tip="Métro Tolbiac - Wagram (7066) · 45 places"/>
+<circle class="dot" cx="121.1" cy="295.3" r="4" style="fill:var(--muted)" data-tip="Théâtre Pigalle - Jaurès (10085) · 45 places"/>
+<circle class="dot" cx="412.9" cy="94.0" r="4" style="fill:var(--muted)" data-tip="Parc Pyrénées - Oberkampf (1125) · 50 places"/>
+<circle class="dot" cx="294.5" cy="395.6" r="4" style="fill:var(--muted)" data-tip="Gare Passy - Bercy (15075) · 28 places"/>
+<circle class="dot" cx="192.0" cy="512.3" r="4" style="fill:var(--muted)" data-tip="Place Saint-Antoine - Passy (13079) · 20 places"/>
+<circle class="dot" cx="68.4" cy="113.2" r="4" style="fill:var(--muted)" data-tip="Marché Pyrénées - Saint-Germain (8074) · 22 places"/>
+<circle class="dot" cx="619.4" cy="503.9" r="4" style="fill:var(--muted)" data-tip="Square Pyrénées - Jaurès (18029) · 28 places"/>
+<circle class="dot" cx="106.1" cy="177.3" r="4" style="fill:var(--muted)" data-tip="Marché Montparnasse - Rivoli (12067) · 18 places"/>
+<circle class="dot" cx="510.3" cy="248.8" r="4" style="fill:var(--muted)" data-tip="Lycée Gambetta - Lafayette (15044) · 35 places"/>
+<circle class="dot" cx="466.9" cy="338.4" r="4" style="fill:var(--muted)" data-tip="Mairie Tolbiac - Ménilmontant (15088) · 22 places"/>
+<circle class="dot" cx="291.8" cy="203.2" r="4" style="fill:var(--muted)" data-tip="Métro Saint-Michel - Rivoli (10036) · 28 places"/>
+<circle class="dot" cx="251.5" cy="392.2" r="4" style="fill:var(--muted)" data-tip="Gare Vaugirard - Nation (17127) · 30 places"/>
+<circle class="dot" cx="143.1" cy="476.5" r="4" style="fill:var(--muted)" data-tip="Marché Magenta - Vaugirard (20140) · 50 places"/>
+<circle class="dot" cx="590.6" cy="19.9" r="4" style="fill:var(--muted)" data-tip="Gare Saint-Antoine - Lafayette (18021) · 20 places"/>
+<circle class="dot" cx="320.0" cy="389.1" r="4" style="fill:var(--muted)" data-tip="Église Nation - Lafayette (20130) · 40 places"/>
+<circle class="dot" cx="58.5" cy="315.7" r="4" style="fill:var(--muted)" data-tip="Gare Montparnasse - Passy (17131) · 28 places"/>
+<circle class="dot" cx="210.7" cy="52.5" r="4" style="fill:var(--muted)" data-tip="Parc Magenta - Grenelle (4104) · 30 places"/>
+<circle class="dot" cx="570.9" cy="233.7" r="4" style="fill:var(--muted)" data-tip="Église Nation - Convention (4003) · 40 places"/>
+<circle class="dot" cx="37.7" cy="286.8" r="4" style="fill:var(--muted)" data-tip="Gare République - Saint-Michel (1001) · 25 places"/>
+<circle class="dot" cx="636.3" cy="109.9" r="4" style="fill:var(--muted)" data-tip="Théâtre Tolbiac - Wagram (2096) · 25 places"/>
+<circle class="dot" cx="388.0" cy="488.5" r="4" style="fill:var(--muted)" data-tip="Lycée Voltaire - République (11098) · 30 places"/>
+<circle class="dot" cx="114.1" cy="21.0" r="4" style="fill:var(--muted)" data-tip="Lycée Convention - Saint-Michel (19009) · 40 places"/>
+<circle class="dot" cx="266.7" cy="458.5" r="4" style="fill:var(--muted)" data-tip="Parc Grenelle - Saint-Antoine (18080) · 40 places"/>
+<circle class="dot" cx="333.5" cy="215.2" r="4" style="fill:var(--muted)" data-tip="Marché Saint-Michel - Passy (19093) · 60 places"/>
+<circle class="dot" cx="308.3" cy="473.6" r="4" style="fill:var(--muted)" data-tip="Mairie Gobelins - Mouffetard (9002) · 28 places"/>
+<circle class="dot" cx="283.6" cy="258.4" r="4" style="fill:var(--muted)" data-tip="Gare Alésia - Belleville (11135) · 28 places"/>
+<circle class="dot" cx="415.0" cy="252.1" r="4" style="fill:var(--muted)" data-tip="Lycée Belleville - Gambetta (8025) · 18 places"/>
+<circle class="dot" cx="535.5" cy="388.4" r="4" style="fill:var(--muted)" data-tip="Place Batignolles - Magenta (15046) · 40 places"/>
+<circle class="dot" cx="197.3" cy="461.7" r="4" style="fill:var(--muted)" data-tip="Marché Nation - Passy (14053) · 30 places"/>
+<circle class="dot" cx="416.8" cy="394.4" r="4" style="fill:var(--muted)" data-tip="Lycée Bercy - Saint-Michel (8064) · 40 places"/>
+<circle class="dot" cx="340.2" cy="249.7" r="4" style="fill:var(--muted)" data-tip="Gare Nation - Rivoli (16068) · 40 places"/>
+<circle class="dot" cx="573.5" cy="316.4" r="4" style="fill:var(--muted)" data-tip="Place Ménilmontant - Saint-Antoine (16133) · 30 places"/>
+<circle class="dot" cx="661.8" cy="479.1" r="4" style="fill:var(--muted)" data-tip="Square République - Daumesnil (1147) · 50 places"/>
+<circle class="dot" cx="110.0" cy="444.1" r="4" style="fill:var(--muted)" data-tip="Square Jaurès - Wagram (8018) · 50 places"/>
+<circle class="dot" cx="490.6" cy="311.3" r="4" style="fill:var(--muted)" data-tip="Marché Mouffetard - Magenta (11126) · 30 places"/>
+<circle class="dot" cx="343.8" cy="158.1" r="4" style="fill:var(--muted)" data-tip="Parc Gambetta - Voltaire (18047) · 28 places"/>
+<circle class="dot" cx="575.0" cy="132.1" r="4" style="fill:var(--muted)" data-tip="Place Vaugirard - Lafayette (10137) · 60 places"/>
+<circle class="dot" cx="301.2" cy="464.2" r="4" style="fill:var(--muted)" data-tip="Marché Mouffetard - Mouffetard (8034) · 22 places"/>
+<circle class="dot" cx="548.5" cy="434.0" r="4" style="fill:var(--muted)" data-tip="Métro Daumesnil - Nation (19107) · 50 places"/>
+<circle class="dot" cx="102.0" cy="424.0" r="4" style="fill:var(--muted)" data-tip="Parc Saint-Germain - Montparnasse (12065) · 25 places"/>
+<circle class="dot" cx="179.1" cy="250.9" r="4" style="fill:var(--muted)" data-tip="Métro Bercy - Saint-Michel (11086) · 35 places"/>
+<circle class="dot" cx="341.0" cy="151.2" r="4" style="fill:var(--muted)" data-tip="Théâtre Saint-Antoine - Gobelins (9077) · 60 places"/>
+<circle class="dot" cx="406.2" cy="129.6" r="4" style="fill:var(--muted)" data-tip="Théâtre Mouffetard - Belleville (10058) · 18 places"/>
+<circle class="dot" cx="494.9" cy="125.4" r="4" style="fill:var(--muted)" data-tip="Lycée Saint-Michel - Voltaire (4045) · 40 places"/>
+<circle class="dot" cx="36.7" cy="433.5" r="4" style="fill:var(--muted)" data-tip="Église Belleville - Jaurès (13101) · 45 places"/>
+<circle class="dot" cx="29.1" cy="132.6" r="4" style="fill:var(--muted)" data-tip="Place Convention - Oberkampf (13100) · 45 places"/>
+<circle class="dot" cx="318.9" cy="208.7" r="4" style="fill:var(--muted)" data-tip="Square Vaugirard - Jaurès (7016) · 45 places"/>
+<circle class="dot" cx="200.3" cy="433.8" r="4" style="fill:var(--muted)" data-tip="Parc Oberkampf - Jaurès (10073) · 60 places"/>
+<circle class="dot" cx="342.8" cy="444.4" r="4" style="fill:var(--muted)" data-tip="Parc Passy - Jaurès (15042) · 22 places"/>
+<circle class="dot" cx="689.5" cy="63.0" r="4" style="fill:var(--muted)" data-tip="Marché Daumesnil - Passy (13052) · 45 places"/>
+<circle class="dot" cx="401.2" cy="435.6" r="4" style="fill:var(--muted)" data-tip="Lycée Batignolles - Bercy (5124) · 60 places"/>
+<circle class="dot" cx="20.0" cy="273.3" r="4" style="fill:var(--muted)" data-tip="Place Gobelins - Pyrénées (6013) · 30 places"/>
+<circle class="dot" cx="548.7" cy="63.0" r="4" style="fill:var(--muted)" data-tip="Square Magenta - Mouffetard (17060) · 40 places"/>
+<circle class="dot" cx="420.2" cy="259.3" r="4" style="fill:var(--muted)" data-tip="Église Mouffetard - Ménilmontant (4115) · 45 places"/>
+<circle class="dot" cx="682.4" cy="497.6" r="4" style="fill:var(--muted)" data-tip="Place Alésia - Rivoli (13037) · 22 places"/>
+<circle class="dot" cx="298.0" cy="525.2" r="4" style="fill:var(--muted)" data-tip="Marché Bercy - République (13049) · 45 places"/>
+<circle class="dot" cx="331.8" cy="130.9" r="4" style="fill:var(--muted)" data-tip="Métro Grenelle - Lafayette (2148) · 20 places"/>
+<circle class="dot" cx="495.8" cy="383.6" r="4" style="fill:var(--muted)" data-tip="Square Jaurès - Grenelle (17040) · 45 places"/>
+<circle class="dot" cx="238.9" cy="339.2" r="4" style="fill:var(--muted)" data-tip="Gare Wagram - Convention (16078) · 20 places"/>
+<circle class="dot" cx="392.3" cy="71.4" r="4" style="fill:var(--muted)" data-tip="Gare Gambetta - Bercy (4032) · 30 places"/>
+<circle class="dot" cx="543.7" cy="49.1" r="4" style="fill:var(--muted)" data-tip="Mairie République - Montparnasse (2123) · 28 places"/>
+<circle class="dot" cx="201.0" cy="390.1" r="4" style="fill:var(--muted)" data-tip="Métro Jaurès - Bercy (9026) · 22 places"/>
+<circle class="dot" cx="275.0" cy="345.7" r="4" style="fill:var(--muted)" data-tip="Mairie Grenelle - Saint-Antoine (12145) · 35 places"/>
+<circle class="dot alert" cx="130.7" cy="109.2" r="7" style="fill:var(--series-1)" data-tip="Square Passy - Lafayette (13005) · 30 places"/>
+<circle class="dot alert" cx="98.3" cy="376.9" r="7" style="fill:var(--status-warning)" data-tip="Square Tolbiac - Nation (16099) · 20 places · vide la plupart de la journée"/>
+<circle class="dot alert" cx="252.0" cy="144.6" r="7" style="fill:var(--status-warning)" data-tip="Place Gobelins - Saint-Germain (4011) · 28 places · pleine la plupart de la journée"/>
+<circle class="dot alert" cx="232.5" cy="474.8" r="7" style="fill:var(--status-warning)" data-tip="Lycée Passy - Alésia (13120) · 30 places · pleine la plupart de la journée"/>
+<circle class="dot alert" cx="366.4" cy="134.0" r="7" style="fill:var(--status-serious)" data-tip="Gare Montparnasse - Nation (5139) · 45 places · bornettes hors service"/>
+<circle class="dot alert" cx="555.0" cy="153.3" r="7" style="fill:var(--status-serious)" data-tip="Parc Magenta - Montparnasse (8141) · 25 places · station fermée (ni prêt ni retour)"/>
+<circle class="dot alert" cx="534.9" cy="292.9" r="7" style="fill:var(--status-serious)" data-tip="Marché Gobelins - Lafayette (3129) · 50 places · bornettes hors service"/>
+<circle class="dot alert" cx="503.1" cy="556.0" r="7" style="fill:var(--status-critical)" data-tip="Métro Pigalle - Saint-Michel (18017) · 18 places · station muette (ne remonte plus de données)"/>
+<circle class="dot alert" cx="268.2" cy="230.4" r="7" style="fill:var(--status-critical)" data-tip="Parc Clichy - Clichy (15134) · 28 places · station muette (ne remonte plus de données)"/>
+<circle class="dot alert" cx="135.7" cy="131.7" r="7" style="fill:var(--status-critical)" data-tip="Lycée Pigalle - Jaurès (17092) · 20 places · station muette (ne remonte plus de données)"/>
+</svg></section>
+<div class="grid2">
+<section class="card"><h2>Anomalies actives</h2><div class="scroll"><table><thead><tr><th>Gravité</th><th>Station</th>
+<th>Problème</th><th>Depuis</th><th class="num">Places</th></tr></thead><tbody><tr><td><span class="badge"><span style="color:var(--status-critical)">▲</span>critique</span></td><td>Parc Clichy - Clichy<br><span style="color:var(--muted)">15134</span></td><td>station muette (ne remonte plus de données)</td><td>26/10 18h00</td><td class="num">28</td></tr><tr><td><span class="badge"><span style="color:var(--status-critical)">▲</span>critique</span></td><td>Lycée Pigalle - Jaurès<br><span style="color:var(--muted)">17092</span></td><td>station muette (ne remonte plus de données)</td><td>26/10 13h30</td><td class="num">20</td></tr><tr><td><span class="badge"><span style="color:var(--status-critical)">▲</span>critique</span></td><td>Métro Pigalle - Saint-Michel<br><span style="color:var(--muted)">18017</span></td><td>station muette (ne remonte plus de données)</td><td>26/10 16h30</td><td class="num">18</td></tr><tr><td><span class="badge"><span style="color:var(--status-serious)">◆</span>élevée</span></td><td>Marché Gobelins - Lafayette<br><span style="color:var(--muted)">3129</span></td><td>bornettes hors service</td><td>26/10 17h00</td><td class="num">50</td></tr><tr><td><span class="badge"><span style="color:var(--status-serious)">◆</span>élevée</span></td><td>Gare Montparnasse - Nation<br><span style="color:var(--muted)">5139</span></td><td>bornettes hors service</td><td>26/10 14h30</td><td class="num">45</td></tr><tr><td><span class="badge"><span style="color:var(--status-serious)">◆</span>élevée</span></td><td>Parc Magenta - Montparnasse<br><span style="color:var(--muted)">8141</span></td><td>station fermée (ni prêt ni retour)</td><td>26/10 18h27</td><td class="num">25</td></tr><tr><td><span class="badge"><span style="color:var(--status-warning)">●</span>moyenne</span></td><td>Lycée Passy - Alésia<br><span style="color:var(--muted)">13120</span></td><td>pleine la plupart de la journée</td><td>sur 24 h</td><td class="num">30</td></tr><tr><td><span class="badge"><span style="color:var(--status-warning)">●</span>moyenne</span></td><td>Place Gobelins - Saint-Germain<br><span style="color:var(--muted)">4011</span></td><td>pleine la plupart de la journée</td><td>sur 24 h</td><td class="num">28</td></tr><tr><td><span class="badge"><span style="color:var(--status-warning)">●</span>moyenne</span></td><td>Square Tolbiac - Nation<br><span style="color:var(--muted)">16099</span></td><td>vide la plupart de la journée</td><td>sur 24 h</td><td class="num">20</td></tr></tbody></table></div></section>
+<section class="card"><h2>Plan de régulation</h2><div class="scroll"><table><thead><tr><th>Station</th><th>Action</th>
+<th class="num">Vélos</th><th>Profil</th></tr></thead><tbody><tr><td>Place Gobelins - Saint-Germain<br><span style="color:var(--muted)">4011</span></td><td>retirer des vélos</td><td class="num">14</td><td>mixte</td></tr><tr><td>Lycée Passy - Alésia<br><span style="color:var(--muted)">13120</span></td><td>retirer des vélos</td><td class="num">14</td><td>mixte</td></tr><tr><td>Square Passy - Lafayette<br><span style="color:var(--muted)">13005</span></td><td>apporter des vélos</td><td class="num">14</td><td>mixte</td></tr><tr><td>Square Tolbiac - Nation<br><span style="color:var(--muted)">16099</span></td><td>apporter des vélos</td><td class="num">9</td><td>mixte</td></tr></tbody></table></div></section>
+</div>
+<footer>Généré le 26/10/2026 20h33 · données simulées au format GBFS Vélib' Métropole · Fayçal Boubekri</footer>
+</main><div class="tip"></div><script>
+const tip=document.querySelector('.tip');
+function show(e,h){tip.innerHTML=h;tip.style.display='block';
+ const x=Math.min(e.clientX+14,innerWidth-tip.offsetWidth-8);tip.style.left=x+'px';tip.style.top=(e.clientY+14)+'px'}
+function hide(){tip.style.display='none'}
+document.querySelectorAll('svg.chart[id^="line"]').forEach(svg=>{
+ const d=JSON.parse(document.getElementById(svg.id+'-data').textContent),g=d.geom,cross=svg.querySelector('.cross');
+ svg.querySelector('.hit').addEventListener('mousemove',e=>{
+  const pt=svg.createSVGPoint();pt.x=e.clientX;pt.y=e.clientY;const p=pt.matrixTransform(svg.getScreenCTM().inverse());
+  const i=Math.max(0,Math.min(g.n-1,Math.round((p.x-g.padL)/((g.W-g.padL-g.padR)/(g.n-1)))));
+  const cx=g.padL+i*(g.W-g.padL-g.padR)/(g.n-1);cross.setAttribute('x1',cx);cross.setAttribute('x2',cx);cross.setAttribute('visibility','visible');
+  show(e,'<b>'+d.labels[i]+'</b>'+d.series.map(s=>'<span style="color:var('+s.color+')">●</span> '+s.name+' : '+Math.round(s.values[i]).toLocaleString('fr-FR')).join('<br>'));
+ });
+ svg.querySelector('.hit').addEventListener('mouseleave',()=>{cross.setAttribute('visibility','hidden');hide()});
+});
+document.querySelectorAll('#map .dot').forEach(c=>{c.addEventListener('mousemove',e=>show(e,c.dataset.tip));c.addEventListener('mouseleave',hide)});
+</script></body></html>
